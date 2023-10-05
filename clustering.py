@@ -2,7 +2,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.cluster import AgglomerativeClustering
 import numpy as np
 import pandas as pd
-
+from django.db import models
 from helpers import preprocess_documents
 from scipy.spatial.distance import euclidean
 
@@ -14,7 +14,7 @@ embedder = SentenceTransformer('all-MiniLM-L6-v2')
 NUMBER_OF_CLUSTERS = 14
 
 
-def cluster_paragraphs(paragraphs: List):
+def cluster_paragraphs(paragraphs: List, flag):
     """
         Clusters paragraphs using the sentence transformer model and agglomerative clustering.
         input: list of paragraphs
@@ -38,8 +38,26 @@ def cluster_paragraphs(paragraphs: List):
     # embeddings is called corpus_embeddings in the original code
     return clustering_model, embeddings, clusters
 
+def get_data(flag):
+    projects = []
+    if flag == 'user':
+        df = pd.DataFrame(list(models.Project.objects.all().values()))
+        for i in range(len(df)):
+            project = str(df['project_description'][i]) + \
+                      str(df['keywords'][i])  + \
+                      str(df['fields_of_science'][i]) +\
+                      str(df['participation_tasks'][i])
+            projects.append(project)
+    else:
+        df = pd.DataFrame(list(models.Contributer.objects.all().values()))
+        for i in range(len(df)):
+            project = str(df['description'][i]) + \
+                      str(df['fields_of_science'][i])
+            projects.append(project)
 
-def get_cluster(text: str, number_of_clusters=NUMBER_OF_CLUSTERS):
+    return projects
+
+def get_cluster(text: str, flag: str, number_of_clusters=NUMBER_OF_CLUSTERS):
     """
         Returns the cluster in which the text belongs to.
         input: text
@@ -49,8 +67,9 @@ def get_cluster(text: str, number_of_clusters=NUMBER_OF_CLUSTERS):
     # this is a quick and dirty "fix"
 
     # this should be a call to the database
-    projects = pd.read_csv('feed.csv')
-    clustering_model, corpus_embeddings, clusters = cluster_projects(projects)
+    projects = get_data(flag)
+    
+    clustering_model, corpus_embeddings, clusters = cluster_paragraphs(projects, flag)
 
 
     text_embedding = embedder.encode(text)
