@@ -8,6 +8,8 @@ class CustomUser(AbstractUser):
     password = models.CharField(max_length=128)
     bio = models.TextField(blank=True)
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True)
+    class Meta:
+        verbose_name = "CustomUser"
     
 class Contributer(CustomUser):
     birthdate = models.DateField(null=True, blank=True)
@@ -15,10 +17,14 @@ class Contributer(CustomUser):
     description = models.TextField(null=True, blank=True)
     participation_tasks = models.ManyToManyField('Project', blank=True)
     fields_of_science = models.ManyToManyField('FieldOfScience', blank=True)
+    class Meta:
+        verbose_name = "Contributer"
 
 class ProjectCreator(CustomUser):
     user = models.OneToOneField(Contributer, on_delete=models.CASCADE, primary_key=True)
     projects_created = models.ManyToManyField('Project', related_name='creators', blank=True)
+    class Meta:
+        verbose_name = "ProjectCreator"
 
 class Project(models.Model):
     name = models.CharField(max_length=255)
