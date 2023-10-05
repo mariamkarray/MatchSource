@@ -1,9 +1,22 @@
-from django.shortcuts import render
 from django.http import HttpResponse
+<<<<<<< HEAD
 from . import models
+=======
+from django.shortcuts import render, redirect
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
+>>>>>>> 8881ba0130c9b651f6df105bb8e38c9b08f3b196
 
 def register(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('home')  # Replace 'home' with the URL you want to redirect after registration
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/register.html', {'form': form})
 
 def recommendProjectsForUser(request):
     user = models.Contributer.objects.get(id=request.user.id)
