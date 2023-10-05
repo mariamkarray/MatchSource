@@ -4,9 +4,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import get_user_model
-from .models import Contributer, Project, FieldOfScience, ProjectCreator
+from .models import Contributer, Project, ProjectCreator
 from django.contrib.auth.forms import AuthenticationForm
 from django import forms
+from datetime import date
+from clustering import get_cluster
 User = get_user_model()
 
 class SignUpForm(UserCreationForm):
@@ -14,12 +16,12 @@ class SignUpForm(UserCreationForm):
     skills = forms.CharField(max_length=255, required=False)
     description = forms.CharField(widget=forms.Textarea, required=False)
     participation_tasks = forms.ModelMultipleChoiceField(queryset=Project.objects.all(), required=False)  
-    fields_of_science = forms.ModelMultipleChoiceField(queryset=FieldOfScience.objects.all(), required=False)
-     
+    recommended_projects = forms.ModelMultipleChoiceField(queryset=Project.objects.all(), required=False)
+    contributed_projects = forms.ModelMultipleChoiceField(queryset=Project.objects.all(), required=False)
 
     class Meta:
         model = Contributer
-        fields = ('username', 'password1', 'email', 'birthdate', 'skills', 'description', 'participation_tasks', 'fields_of_science')
+        fields = ('username', 'password1', 'email', 'birthdate', 'skills', 'description', 'participation_tasks', 'fields_of_science', 'recommended_projects', 'contributed_projects')
 
 class LoginForm(AuthenticationForm):
     class Meta:
@@ -51,7 +53,15 @@ def loginView(request):
 def index(request):
     return render(request, 'index.html')
 
-# def relevantProjects()
+def relevantProjects(request):
+    desc = request.user.description + ' ' + request.user.skills
+    id = get_cluster(desc)
+    projects = Project.objects.filter(cluster_id=id)
+    print(projects)
+    return projects
+
+    
+    
 
 def recommendProjectsForUser(request):
     user = models.Contributer.objects.get(id=request.user.id)
