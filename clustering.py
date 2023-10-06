@@ -38,17 +38,6 @@ def cluster_paragraphs(paragraphs: List):
     # embeddings is called corpus_embeddings in the original code
     return clustering_model, embeddings, clusters
 
-def cluster_projects(df: pd.DataFrame):
-    projects = []
-    for i in range(len(df)):
-        project = str(df['project_description'][i]) + \
-                str(df['keywords'][i])  + \
-                str(df['fields_of_science'][i]) +\
-                str(df['participation_tasks'][i]) 
-        projects.append(project)
-    clustering_model, embeddings, clusters = cluster_paragraphs(projects)
-
-    return clustering_model, embeddings, clusters
 
 def get_cluster(text: str, number_of_clusters=NUMBER_OF_CLUSTERS):
     """
@@ -79,6 +68,3 @@ def get_cluster(text: str, number_of_clusters=NUMBER_OF_CLUSTERS):
 
     return nearest_cluster_index
 
-cluster = get_cluster('i like to play football')
-
-print(cluster)
