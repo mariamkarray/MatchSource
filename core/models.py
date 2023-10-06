@@ -35,11 +35,10 @@ class Project(models.Model):
     cluster_id = models.IntegerField(null=True, blank=True)
 
 class Contributer(CustomUser):
-    birthdate = models.DateField(null=True, blank=True)
     skills = models.TextField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
-    participation_tasks = models.TextField(null=True, blank=True)
     fields_of_science = models.TextField(null=True, blank=True)
+    birthdate = models.DateField(null=True, blank=True)
     recommended_projects = models.ManyToManyField(Project, related_name='recommended_contributers', blank=True)
     contributed_projects = models.ManyToManyField(Project, related_name='projects_contributed', blank=True)
     class Meta:

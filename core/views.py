@@ -12,15 +12,14 @@ from datetime import date
 from clustering import get_cluster, cluster_paragraphs
 
 
+
+
 User = get_user_model()
 
 class SignUpForm(UserCreationForm):
-    birthdate = forms.DateField(required=False)
-    skills = forms.CharField(max_length=255, required=False)
-    description = forms.CharField(widget=forms.Textarea, required=False)
-    participation_tasks = forms.ModelMultipleChoiceField(queryset=Project.objects.all(), required=False)  
-    recommended_projects = forms.ModelMultipleChoiceField(queryset=Project.objects.all(), required=False)
-    contributed_projects = forms.ModelMultipleChoiceField(queryset=Project.objects.all(), required=False)
+    description = forms.CharField(widget=forms.Textarea, required=True)
+    skills = forms.CharField(max_length=255, required=True)
+    participation_tasks = forms.CharField(widget=forms.Textarea, required=True) 
      
 
     class Meta:
@@ -35,7 +34,8 @@ def register(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            user = form.save() 
+            user.recommended_projects = recommened_projects_for_user(request)
             return redirect('/')
     else:
         form = SignUpForm()
@@ -57,13 +57,6 @@ def loginView(request):
 def index(request):
     return render(request, 'index.html')
 
-def relevantProjects(request):
-    desc = request.user.description + ' ' + request.user.skills
-    id = get_cluster(desc)
-    projects = Project.objects.filter(cluster_id=id)
-    print(projects)
-    return projects
-    
 
 def recommendProjectsForUser(request):
     user = models.Contributer.objects.get(id=request.user.id)
