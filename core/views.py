@@ -41,18 +41,23 @@ def register(request):
         form = SignUpForm()
     return render(request, 'register.html', {'form': form})
 
+
 def loginView(request):
     form = LoginForm(request=request, data=request.POST)
-    if form.is_valid():
-        user = authenticate(request, username=form.cleaned_data['username'], password=form.cleaned_data['password'])
-        if user is not None:
-            login(request, user)
-            return redirect('home')
-    else:
-        form = LoginForm()
-
+    if request.method == 'POST':
+        if form.is_valid():
+            # Authenticate the user
+            user = authenticate(request, username=form.cleaned_data['username'], password=form.cleaned_data['password'])
+            if user is not None:
+                print(f"User type: {type(user)}")
+                # Login the user
+                
+                login(request, user)
+                return render(request, 'home.html', {'similar_projects': []})
+            else:
+                form = LoginForm()
+            
     return render(request, 'login.html', {'form': form})
-
 
 def index(request):
     return render(request, 'index.html')
@@ -68,7 +73,8 @@ def recommendProjectsForUser(request):
             models.RecommendedProject.objects.create(user=user, project=project)
 
 def recommened_projects_for_user(request):
-    description = request.user.description + ' ' + request.user.skills
+    user = models.Contributer.objects.get(id=request.user.id)
+    description = user.description + ' ' + user.skills
     cluster_id = get_cluster(description)
     similar_projects = Project.objects.filter(cluster_id=cluster_id)
     return similar_projects
