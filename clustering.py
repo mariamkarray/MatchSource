@@ -2,9 +2,10 @@ from sentence_transformers import SentenceTransformer
 from sklearn.cluster import AgglomerativeClustering
 import numpy as np
 import pandas as pd
-from django.db import models
+from core import models
 from helpers import preprocess_documents
 from scipy.spatial.distance import euclidean
+
 
 from typing import List
 
@@ -40,7 +41,7 @@ def cluster_paragraphs(paragraphs: List, flag):
 
 def get_data(flag):
     projects = []
-    if flag == 'user':
+    if flag == 'project':
         df = pd.DataFrame(list(models.Project.objects.all().values()))
         for i in range(len(df)):
             project = str(df['project_description'][i]) + \

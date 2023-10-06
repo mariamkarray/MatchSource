@@ -24,7 +24,7 @@ class SignUpForm(UserCreationForm):
 
     class Meta:
         model = Contributer
-        fields = ('username', 'password1', 'email', 'birthdate', 'skills', 'description', 'participation_tasks', 'fields_of_science', 'recommended_projects', 'contributed_projects')
+        fields = ('username', 'password1', 'email', 'birthdate', 'skills', 'description', 'participation_tasks', 'fields_of_science', 'contributed_projects')
 
 class LoginForm(AuthenticationForm):
     class Meta:
@@ -63,6 +63,8 @@ def index(request):
     return render(request, 'index.html')
 
 
+def 
+
 def recommendProjectsForUser(request):
     user = models.Contributer.objects.get(id=request.user.id)
     recommended_projects = user.recommended_projects.all()
@@ -73,8 +75,17 @@ def recommendProjectsForUser(request):
             models.RecommendedProject.objects.create(user=user, project=project)
 
 def recommened_projects_for_user(request):
-    user = models.Contributer.objects.get(id=request.user.id)
-    description = user.description + ' ' + user.skills
-    cluster_id = get_cluster(description)
+    user=models.CustomUser.objects.get(id=1)
+    contributer=models.Contributer.objects.get(id=user.id)
+    no = contributer.description + ' ' + contributer.skills
+    cluster_id = get_cluster(no, 'no', 0)
     similar_projects = Project.objects.filter(cluster_id=cluster_id)
-    return similar_projects
+    return HttpResponse(similar_projects) 
+
+def moot(request):
+    user=models.CustomUser.objects.get(id=1)
+    contributer=models.Contributer.objects.get(id=user.id)
+    no = contributer.description + ' ' + contributer.skills
+    cluster_id = get_cluster(no, 'no', 0)
+    similar_projects = Project.objects.filter(cluster_id=cluster_id)
+    return HttpResponse(similar_projects) 
