@@ -4,18 +4,21 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import get_user_model
-from .models import Contributer, Project, ProjectCreator
+from .models import Contributer, Project, ProjectCreator, CustomUser
 from django.contrib.auth.forms import AuthenticationForm
 from django import forms
 from datetime import date
 from datetime import date
 from clustering import get_cluster, cluster_paragraphs
-
-
-
+import pandas as pd
 
 User = get_user_model()
 
+class ProjectForm(forms.ModelForm):
+    class Meta:
+        model = Project
+        fields = '__all__'
+        
 class SignUpForm(UserCreationForm):
     description = forms.CharField(widget=forms.Textarea, required=True)
     skills = forms.CharField(max_length=255, required=True)
@@ -25,10 +28,11 @@ class SignUpForm(UserCreationForm):
     class Meta:
         model = Contributer
         fields = ('username', 'password1', 'email', 'birthdate', 'skills', 'description', 'participation_tasks', 'fields_of_science', 'contributed_projects')
+    
 
 class LoginForm(AuthenticationForm):
     class Meta:
-        model = Contributer   
+        model = CustomUser    
         
 def register(request):
     if request.method == 'POST':
@@ -50,8 +54,7 @@ def loginView(request):
             user = authenticate(request, username=form.cleaned_data['username'], password=form.cleaned_data['password'])
             if user is not None:
                 print(f"User type: {type(user)}")
-                # Login the user
-                
+
                 login(request, user)
                 return render(request, 'home.html', {'similar_projects': []})
             else:
@@ -60,10 +63,21 @@ def loginView(request):
     return render(request, 'login.html', {'form': form})
 
 def index(request):
+    dt = pd.DataFrame(list(models.Contributer.objects.all().values()))
+    dt.to_csv('users.csv')
     return render(request, 'index.html')
 
+def create_project(request):
+    if request.method == 'POST':
+        form = ProjectForm(request.POST)
+        if form.is_valid():
+            form.save()
+            # Redirect to a success page or wherever you want
+            return render(request, 'index.html')
+    else:
+        form = ProjectForm()
 
-def 
+    return render(request, 'create_project.html', {'form': form})
 
 def recommendProjectsForUser(request):
     user = models.Contributer.objects.get(id=request.user.id)
