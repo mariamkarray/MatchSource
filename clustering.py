@@ -53,7 +53,8 @@ def get_data(flag):
         df = pd.DataFrame(list(models.Contributer.objects.all().values()))
         for i in range(len(df)):
             project = str(df['description'][i]) + \
-                      str(df['fields_of_science'][i])
+                      str(df['fields_of_science'][i]) + \
+                      str(df['participation_tasks'][i])
             projects.append(project)
 
     return projects
