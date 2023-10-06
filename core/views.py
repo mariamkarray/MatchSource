@@ -67,3 +67,8 @@ def recommendProjectsForUser(request):
         for project in recommended_projects:
             models.RecommendedProject.objects.create(user=user, project=project)
 
+def recommened_projects_for_user(request):
+    description = request.user.description + ' ' + request.user.skills
+    cluster_id = get_cluster(description)
+    similar_projects = Project.objects.filter(cluster_id=cluster_id)
+    return similar_projects
